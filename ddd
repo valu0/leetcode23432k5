@@ -1,0 +1,113 @@
+class LRUCache {
+    Links links;
+    HashMap<Integer,N> kvs;
+    Integer k;
+    int val;
+
+    public LRUCache(int capacity) {
+       
+        this.links = new Links(capacity);
+        kvs = new HashMap<>();
+    }
+
+    public int get(int key) {
+        if (kvs.containsKey(key)){
+            N n = kvs.get(key);
+            links.moveToFirst(n,n.val);
+            return n.val;
+        } else {
+           return -1;
+        }
+    }
+
+    public void put(int key, int value) {
+        if (kvs.containsKey(key)){
+            N n = kvs.get(key);
+            links.moveToFirst(n,value);
+        } else {
+            N t = links.addToFirst(key,value);
+            if (t.z!=Integer.MIN_VALUE+333){
+                kvs.remove(t.z);
+            }
+            kvs.put(key,t);
+        }
+    }
+}
+
+class Links{
+    int cap;
+    int length;
+    N dummyFirst;
+    N dummyLast;
+    public Links(int cap){
+        this.cap=cap;
+        this.length=0;
+        this.dummyFirst = new N(-1);
+        this.dummyLast = new N(-1,-1,dummyFirst,null);
+        dummyFirst.right = dummyLast;
+    }
+
+    public N addToFirst(int key,int val){
+        N n = new N(key,val,dummyFirst,dummyFirst.right);
+        n.z=Integer.MIN_VALUE+333;
+        
+        if (this.length==this.cap){
+            //remove last one
+            n.z=dummyLast.left.key;
+            dummyLast.left=dummyLast.left.left;
+            dummyLast.left.right=dummyLast;
+            this.length--;
+        }
+        this.length++;
+
+        if (this.length==1){
+            n.right=dummyLast;
+        }
+
+       
+        //n add to firstone
+            dummyFirst.right=n;
+            n.right.left=n;
+        return n;
+    }
+
+    public void moveToFirst(N n,int val){
+
+        //remove n
+        n.left.right=n.right;
+        n.right.left=n.left;
+
+        //n move to first
+        n.right=dummyFirst.right;
+        dummyFirst.right=n;
+        n.left=dummyFirst;
+        n.right.left=n;
+
+        n.val=val;
+    }
+}
+
+class N {
+    public int key;
+    public int val;
+    public N left;
+    public N right;
+    public int z;
+    public N(int key,int val,N left,N right){
+        this.left=left;
+        this.right=right;
+        this.val=val;
+        this.key=key;
+    }
+    public N(int val){
+        this.key=val;
+    }
+}
+
+
+/**
+ * Your LRUCache object will be instantiated and called as such:
+ * LRUCache obj = new LRUCache(capacity);
+ * int param_1 = obj.get(key);
+ * obj.put(key,value);
+ */
